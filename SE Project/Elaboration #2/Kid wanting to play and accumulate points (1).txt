@@ -1,0 +1,38 @@
+title Kid wanting to play and accumulate points
+
+Kid->General:General, I want to play GreenGo.
+General->Artist:Artist, show the Kid how to create an account.
+Artist->Kid:Kid, you need to create an account, and these are the date we need from you.
+Kid->General:General, here are my login information.
+General->Artist:Awesome! Alright, Artist, show the Kid the different options.
+Artist->Kid:Welcome to Green Go, please sign in.
+Kid->General:Here is my account information to sign in.
+General->Clerk:Clerk, please store Kid’s information.
+Clerk->General:One moment, I need to research more on data storage and security first.... Ok General, account stored and protected.
+General->Artist:Artist, inform the Kid we are ready for him to play.
+Artist->Kid:Hey Kid, we are ready. Press play when you want to start the game.
+Kid->General:I want to start playing.
+General->Guide:Guide, could you show where to find a recycling station and playing zone.
+Guide->General:Sure General, I am not too sure on how GUI works, but I will research on YouTube. Ahh here we go, here we have the region map.
+General->Artist:Artist, display the map to the kid.
+Artist->Kid:Hey kid, here are the sites where you can bring your used batteries and activate the game.
+Kid->General:General, thanks for the map, but how do I get there?
+General->Router:Router, define the nearest way to the recycling station and keep updating the kids position.
+Router->General:Here is the route and I have an eye on the kid.
+General->Artist:Artist, show the route to the kid and remind him to bring used batteries.
+Artist->Kid:Kid, you are here, and this is your way to the recycling station. We’ll guide through there. Don’t forget to bring used batteries.
+Kid->General:General, I am in. How do I start a play?
+General->Artist:Artist, inform the kid how to start a game.
+Artist->Kid:Kid, to start a play, scan/take a picture of the batteries you are disposing and scan the QR code of the recycling bin.
+Kid->General:That’s easy. General, here are the pictures.
+General->Photographer:Hey Photographer! Please check process these pictures.
+Photographer->General:Pictures show ten batteries and Station Vernon Av.
+General->Croupier:Croupier, launch 10 bunnies.
+Croupier->Kid:Fun time! Kid, try to catch these bunnies!
+Kid->Croupier:Cool, I’ll hunt you all.
+Croupier->General:General! All bunnies were captured by the kid. He receives 10 points.
+General->Clerk:Clerk, please register 10 points on the kid account.
+Clerk->General:It’s done General.
+General->Artist:Artist, inform the kid he received 10 points.
+Artist->Kid:Kid, you are amazing. You hunted all 10 bunnies and received 10 points. We want to see you back very soon!
+Kid->General:Bye!
