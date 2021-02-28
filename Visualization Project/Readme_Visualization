@@ -1,0 +1,32 @@
+## Visualization of Employee Attrition rate
+
+Question: Why are some of the employees leaving ? 
+Number of employee(Rows) :14999
+Number of features:  10
+No Calculated field
+
+Features:  
+
+Satisfaction_level (Satisfaction Level of the employee)
+last_evaluation(Last evaluation received)
+number_project
+average_montly_hours(Average monthly hours)
+time_spend_company (Time spent at the company)
+Work_accident(Whether they have had a work accident)
+Left(Whether the employee has left)
+promotion_last_5years(Whether they have had a promotion in the last 5 years)
+Department
+salary
+
+
+Variables Added:
+ 
+Left (value) – quantitative to nominal conversion
+		-> Left = 0 is ‘Left’
+		-> Left = 1 is ‘Stayed’
+
+Promotion Last 5 years (value) – quantitative to nominal conversion
+		-> Promotion = 0 is ‘No Promotion’
+		-> Promotion = 1 is ‘Yes Promotion’
+
+Total features : 12
