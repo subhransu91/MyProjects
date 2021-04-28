@@ -1,0 +1,233 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "InstanceType": {
+      "Description": "Server instance type",
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues": [
+        "t2.micro",
+        "t2.medium"
+      ],
+      "ConstraintDescription": "Must be a valid EC2 type."
+    },
+    "KeyName": {
+      "Description": "Name of your EC2 KeyPair to enable SSH access to the instances.",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+    },
+    "YourIp": {
+      "Description": "The current CIDR IP address of your workstation (x.x.x.x/32).",
+      "Type": "String",
+      "Default": "71.195.46.221/32"
+    }
+  },
+  "Resources": {
+    "EngineeringVpc": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "CidrBlock": "10.0.0.0/18",
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "Test"
+          }
+        ]
+      }
+    },
+
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {}
+    },
+    "VPCGatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        },
+        "VpcId": {
+          "Ref": "EngineeringVpc"
+        }
+      }
+    },
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "EngineeringVpc"
+        }
+      }
+    },
+    "PublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      },
+      "DependsOn": [
+        "InternetGateway"
+      ]
+    },
+    "PublicSubnet1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "EngineeringVpc"
+        },
+        "CidrBlock": "10.0.0.0/24",
+        "AvailabilityZone" : "us-east-1a",
+        "MapPublicIpOnLaunch" : "True"
+      }
+    },
+
+    "PublicSubnet2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "EngineeringVpc"
+        },
+        "CidrBlock": "10.0.1.0/24",
+        "AvailabilityZone" : "us-east-1b",
+        "MapPublicIpOnLaunch" : "True"
+      }
+    },
+    "PublicSubnet1RTassoc": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnet1"
+        }
+      }
+    },
+    "PublicSubnet2RTassoc": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnet2"
+        }
+      }
+    },
+    "web1": {
+      "Type": "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType": {"Ref": "InstanceType"},
+        "ImageId": "ami-3ea13f29",
+        "SubnetId": { "Ref": "PublicSubnet1" },
+        "SecurityGroupIds": [
+          { "Ref": "WebserverSG"}
+        ],
+        "KeyName": {"Ref": "KeyName"},
+        "Tags" : [
+          { "Key": "Name",
+            "Value": "web1"
+          }
+        ]
+      }
+    },
+    "web2": {
+      "Type": "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType": {"Ref": "InstanceType"},
+        "ImageId": "ami-3ea13f29",
+        "SubnetId": { "Ref": "PublicSubnet2" },
+        "SecurityGroupIds": [
+          { "Ref": "WebserverSG"}
+        ],
+        "KeyName": {"Ref": "KeyName"},
+        "Tags" : [
+          { "Key": "Name",
+            "Value": "web2"
+          }
+        ]
+      }
+    },
+    "WebserverSG": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "VpcId": {
+          "Ref": "EngineeringVpc"
+        },
+        "GroupDescription": "Allow access from HTTP and SSH traffic",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": {"Ref": "YourIp"}
+          }
+        ]
+      }
+    },
+   "EngineeringLB": {
+      "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "Properties" : {
+        "IpAddressType" : "ipv4",
+        "Name" : "EngineeringLB",
+        "SecurityGroups" : [{"Ref":"WebserverSG"}],
+        "Subnets" : [{"Ref": "PublicSubnet1"}, {"Ref": "PublicSubnet2"}],
+        "Tags" : [{"Key": "Name","Value": "EngineeringLB"}],
+        "Type" : "application"
+      }
+    },
+    "EngineeringWebservers": {
+      "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "Properties" : {
+          "Name" : "EngineeringWebservers",
+          "Port" : "80",
+          "Protocol" : "HTTP",
+          "Tags" : [{"Key": "Name","Value": "EngineeringWebservers"}],
+          "Targets" : [{"Id":{"Ref":"web1"}, "Port":"80"}, {"Id":{"Ref":"web2"}, "Port":"80"}],
+          "TargetType" : "instance",
+          "VpcId" : {"Ref": "EngineeringVpc"}
+        }
+    },
+    "EngineeringListener": {
+      "Type" : "AWS::ElasticLoadBalancingV2::Listener",
+      "Properties" : {
+          "DefaultActions" : [{"TargetGroupArn":{"Ref":"EngineeringWebservers"},"Type":"forward"}],
+          "LoadBalancerArn" : {"Ref":"EngineeringLB"},
+          "Port" : "80",
+          "Protocol" : "HTTP"
+        }
+    }    
+  },
+  "Outputs": {
+    "WebUrl": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "http://",
+            {
+              "Fn::GetAtt": [
+                "EngineeringLB",
+                "DNSName"
+              ]
+            }
+          ]
+        ]
+      },
+      "Description": "Webserver URL"
+    }
+  }
+}
